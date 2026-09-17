@@ -208,4 +208,3 @@ This project is for educational purposes. Please ensure compliance with data usa
 ## ⚠️ Disclaimer
 
 This system is designed for educational and research purposes. It should not be used in production without proper validation, testing, and regulatory compliance.</content>
-<parameter name="filePath">c:\Users\Ivanic\Desktop\AI lab\smartDetector\README.md
