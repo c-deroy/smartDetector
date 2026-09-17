@@ -1,9 +1,10 @@
 services:
-  # FastAPI model backend - native Python runtime, no Docker needed
+  # FastAPI model backend - native Python runtime, no Docker needed.
+  # Free tier: 512MB RAM, spins down after 15 min idle, ~30-50s cold
+  # start on the next request. Fine for a demo, not for always-on use.
   - type: web
     name: smartdetector-api
     runtime: python
-    plan: starter  # free tier's 512MB RAM is tight for xgboost + shap loaded together
     buildCommand: pip install -r requirements-api.txt
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -11,48 +12,31 @@ services:
         value: 3.11.0
 
   # PHP dashboard + SimplePay frontend - via Dockerfile since Render
-  # has no native PHP runtime
+  # has no native PHP runtime. Also free tier, same cold-start caveat.
   - type: web
     name: smartdetector-web
     runtime: docker
     dockerfilePath: ./Dockerfile.web
-    plan: starter
     envVars:
+      # MySQL is NOT hosted on Render - private services and persistent
+      # disks require a paid plan. Use a free external MySQL instead
+      # (e.g. Aiven's free MySQL plan) and fill these in manually with
+      # the host/port/user/password/dbname it gives you.
       - key: DB_HOST
-        fromService:
-          type: pserv
-          name: smartdetector-db
-          property: host
+        sync: false
       - key: DB_PORT
-        value: 3306
+        sync: false
       - key: DB_NAME
-        value: fraud_detection
+        sync: false
       - key: DB_USER
-        sync: false   # set manually in Render dashboard
+        sync: false
       - key: DB_PASSWORD
-        sync: false   # set manually in Render dashboard
+        sync: false
       - key: MODEL_API_URL
-        sync: false   # set to the smartdetector-api service's internal URL
+        sync: false   # set to the smartdetector-api service's public URL
                       # (shown on that service's Render dashboard page),
-                      # e.g. http://smartdetector-api:10000/predict_simple
+                      # e.g. https://smartdetector-api.onrender.com/predict_simple
       - key: SMTP_USERNAME
         sync: false   # set manually in Render dashboard, after rotating the password
       - key: SMTP_PASSWORD
         sync: false   # set manually in Render dashboard, after rotating the password
-
-  # MySQL - private service (not exposed to the public internet),
-  # only reachable internally by smartdetector-web
-  - type: pserv
-    name: smartdetector-db
-    runtime: docker
-    dockerfilePath: ./Dockerfile.db
-    plan: starter
-    disk:
-      name: mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 1
-    envVars:
-      - key: MYSQL_ROOT_PASSWORD
-        sync: false   # set manually in Render dashboard
-      - key: MYSQL_DATABASE
-        value: fraud_detection

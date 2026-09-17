@@ -1,9 +1,0 @@
-FROM mysql:8.0
-
-# Any .sql file dropped here runs automatically the first time the
-# container starts with an empty data directory. Add schema_users.sql,
-# your transactions schema file, and any others the same way.
-COPY php_backend/schema_users.sql /docker-entrypoint-initdb.d/01_schema_users.sql
-# COPY php_backend/schema_transactions.sql /docker-entrypoint-initdb.d/02_schema_transactions.sql
-
-EXPOSE 3306
