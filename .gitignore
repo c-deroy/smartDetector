@@ -3,3 +3,6 @@ __pycache__/
 venv/
 env/
 .env
+creditcard.csv
+paysim.csv
+paysim_engineered.csv
