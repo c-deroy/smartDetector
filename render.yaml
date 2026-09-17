@@ -1,0 +1,58 @@
+services:
+  # FastAPI model backend - native Python runtime, no Docker needed
+  - type: web
+    name: smartdetector-api
+    runtime: python
+    plan: starter  # free tier's 512MB RAM is tight for xgboost + shap loaded together
+    buildCommand: pip install -r requirements-api.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  # PHP dashboard + SimplePay frontend - via Dockerfile since Render
+  # has no native PHP runtime
+  - type: web
+    name: smartdetector-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile.web
+    plan: starter
+    envVars:
+      - key: DB_HOST
+        fromService:
+          type: pserv
+          name: smartdetector-db
+          property: host
+      - key: DB_PORT
+        value: 3306
+      - key: DB_NAME
+        value: fraud_detection
+      - key: DB_USER
+        sync: false   # set manually in Render dashboard
+      - key: DB_PASSWORD
+        sync: false   # set manually in Render dashboard
+      - key: MODEL_API_URL
+        sync: false   # set to the smartdetector-api service's internal URL
+                      # (shown on that service's Render dashboard page),
+                      # e.g. http://smartdetector-api:10000/predict_simple
+      - key: SMTP_USERNAME
+        sync: false   # set manually in Render dashboard, after rotating the password
+      - key: SMTP_PASSWORD
+        sync: false   # set manually in Render dashboard, after rotating the password
+
+  # MySQL - private service (not exposed to the public internet),
+  # only reachable internally by smartdetector-web
+  - type: pserv
+    name: smartdetector-db
+    runtime: docker
+    dockerfilePath: ./Dockerfile.db
+    plan: starter
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        sync: false   # set manually in Render dashboard
+      - key: MYSQL_DATABASE
+        value: fraud_detection

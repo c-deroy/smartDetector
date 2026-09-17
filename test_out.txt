@@ -1,0 +1,21 @@
+>> py -3 scripts/train_model.py
+Engineered data written to D:\xamp\htdocs\AI lab\smartDetector\data\..\paysim_engineered.csv
+Loading D:\xamp\htdocs\AI lab\smartDetector\paysim_engineered.csv
+Rows: 6362620
+Numeric cols count: 26 Categorical cols: ['type', 'merchant_cat', 'country', 'isFlaggedFraud', 'transaction_channel']
+Train size (5090096, 48) Test size (1272524, 48)
+AUC: 0.9945984415698197
+Classification report:
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00   1270881
+           1       1.00      0.74      0.85      1643
+
+    accuracy                           1.00   1272524
+   macro avg       1.00      0.87      0.93   1272524
+weighted avg       1.00      1.00      1.00   1272524
+
+Saved model to D:\xamp\htdocs\AI lab\smartDetector\models\rf_paysim.joblib
+Saved scaler to D:\xamp\htdocs\AI lab\smartDetector\models\scaler.joblib
+Saved metadata to D:\xamp\htdocs\AI lab\smartDetector\models\metadata.json
+Saved metrics to D:\xamp\htdocs\AI lab\smartDetector\models\train_metrics.json

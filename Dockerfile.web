@@ -1,0 +1,27 @@
+FROM php:8.2-apache
+
+# MySQL/PDO extensions your php_backend/ code needs
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+# Apache config: serve app/ as the web root so both the SimplePay
+# frontend and app/admin are reachable, while php_backend/ stays
+# one level up and is included by PHP files via relative paths
+RUN a2enmod rewrite
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/app
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Render injects PORT at runtime; Apache needs to listen on it
+RUN sed -ri 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf \
+    && sed -ri 's/:80/:${PORT}/g' /etc/apache2/sites-available/*.conf
+
+WORKDIR /var/www/html
+COPY app/ ./app/
+COPY php_backend/ ./php_backend/
+
+# Silences Apache's "could not reliably determine server's fully
+# qualified domain name" warning on container startup
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+EXPOSE 80
+CMD ["apache2-foreground"]

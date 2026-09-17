@@ -1,0 +1,25 @@
+﻿python : Traceback (most recent call last):
+At line:1 char:1
++ python 'd:\xamp\htdocs\AI lab\smartDetector\data\feature_engineer.py' ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last) 
+   ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "d:\xamp\htdocs\AI lab\smartDetector\data\feature_engineer.py", line 
+82, in <module>
+    main()
+  File "d:\xamp\htdocs\AI lab\smartDetector\data\feature_engineer.py", line 
+69, in main
+    eng = engineer_chunk(chunk)
+  File "d:\xamp\htdocs\AI lab\smartDetector\data\feature_engineer.py", line 
+41, in engineer_chunk
+    df['orig_amount_mean'] = grp['amount'].transform('expanding').apply(lambda 
+x: x[:-1].mean() if len(x)>1 else 0)
+  File "C:\Users\Ivanic\AppData\Local\Programs\Python\Python310\lib\site-packag
+es\pandas\core\groupby\generic.py", line 517, in transform
+    return self._transform(
+  File "C:\Users\Ivanic\AppData\Local\Programs\Python\Python310\lib\site-packag
+es\pandas\core\groupby\groupby.py", line 2025, in _transform
+    raise ValueError(msg)
+ValueError: 'expanding' is not a valid function name for transform(name)
